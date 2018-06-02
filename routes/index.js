@@ -1,12 +1,13 @@
 var express = require('express');
 var router = express.Router();
 var User = require('../models/user');
+var middleware = require('../middleware');
 
 router.get('/', function(req, res, next) {
   return res.render('index', { title: 'Home' });
 });
 
-router.get('/register', function(req, res, next) {
+router.get('/register', middleware.loggedOut, function(req, res, next) {
   return res.render('register', { title: 'Register' });
 });
 
@@ -40,7 +41,7 @@ router.post('/register', function(req, res, next) {
     }
 });
 
-router.get('/login', function(req, res, next) {
+router.get('/login', middleware.loggedOut, function(req, res, next) {
   return res.render('login', { title: 'Log in' });
 });
 
@@ -77,12 +78,7 @@ router.post('/login', function(req, res, next) {
   }
 });
 
-router.get('/profile', function(req, res, next) {
-  if (! req.session.userId ) {
-    var err = new Error("You are not authorized to view this page.");
-    err.status = 403;
-    return next(err);
-  }
+router.get('/profile', middleware.requiresLogin, function(req, res, next) {
   User.findById(req.session.userId)
       .exec(function (error, user) {
         if (error) {
