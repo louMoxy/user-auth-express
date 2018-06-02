@@ -44,6 +44,18 @@ router.get('/login', function(req, res, next) {
   return res.render('login', { title: 'Log in' });
 });
 
+router.get('/logout', function(req, res, next) {
+  if(req.session){
+    req.session.destroy(function(err) {
+      if(err){
+        return next(err);
+      } else {
+        res.redirect('/');
+      }
+    })
+  }
+});
+
 router.post('/login', function(req, res, next) {
   const email = req.body.email;
   const pass = req.body.password;
